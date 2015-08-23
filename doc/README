@@ -6,6 +6,9 @@
 
 在httpry基础上进行了修改，httpry的授权协议为GNU GENERAL PUBLIC LICENSE Version 2, June 1991
 不知道应该如何描述此文件，所以用中文做了描述，依然遵循授权协议GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+增加了发送syslog审计记录。
+
+add -g output syslog mode 
 --{ ABOUT }--
 
 secihttp is a tool designed for displaying and logging HTTP traffic. It is not
