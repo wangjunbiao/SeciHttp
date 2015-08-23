@@ -5,7 +5,6 @@
   ----------------------------------------------------
 
   Copyright (c) 2005-2014 Jason Bittel <jason.bittel@gmail.com>
-  Licensed under GPLv2. For further information, see COPYING file.
 
 */
 
@@ -31,6 +30,7 @@
 #include "error.h"
 #include "format.h"
 #include "utility.h"
+#include <syslog.h>
 
 #define HASHSIZE 64
 
@@ -241,6 +241,42 @@ void print_format_values() {
         }
         printf("\n");
 
+        return;
+}
+
+/* Destructively syslog each node value; once printed, each existing
+   value is assigned to NULL to clear it for the next packet */
+void syslog_format_values() {
+        FORMAT_NODE *node = head;
+
+#ifdef DEBUG
+        ASSERT(node);
+#endif
+
+        char strmsg[10000]="";
+        char strtmp[5000]="";
+        while (node) {
+                if (node->value) {
+                        sprintf(strtmp,"%s",node->value);
+                        node->value = NULL;
+                } else {
+                        sprintf(strtmp,"%s",EMPTY_FIELD);
+                }
+                strcat(strmsg,strtmp);
+                memset(strtmp,0,sizeof(strtmp)/sizeof(char));
+
+                if (node->list != NULL){
+                    sprintf(strtmp,"%s",FIELD_DELIM);
+                }
+                strcat(strmsg,strtmp);
+                memset(strtmp,0,sizeof(strtmp)/sizeof(char));
+                node = node->list;
+        }
+        //printf("\n");
+
+        openlog("seci-http",  LOG_PID, LOG_LOCAL0 );
+        syslog(LOG_INFO, "%s",  strmsg);
+        closelog();
         return;
 }
 

@@ -5,15 +5,14 @@
   ----------------------------------------------------
 
   Copyright (c) 2005-2014 Jason Bittel <jason.bittel@gmail.com>
-  Licensed under GPLv2. For further information, see COPYING file.
 
 */
 
 #ifndef _HAVE_CONFIG_H
 #define _HAVE_CONFIG_H
 
-#define PROG_NAME "httpry"
-#define PROG_VER "0.1.8"
+#define PROG_NAME "secihttp"
+#define PROG_VER "0.1"
 
 /* Default packet capture filter; must be a standard libpcap style filter
    *** Can be overridden */
@@ -54,7 +53,7 @@
 /* HTTP specific constant; should never change! */
 #define HTTP_STRING "HTTP/"
 
-#define MAX_TIME_LEN 32
+#define MAX_TIME_LEN 20
 #define PORTSTRLEN 6
 
 #endif /* ! _HAVE_CONFIG_H */

@@ -5,7 +5,6 @@
   ----------------------------------------------------
 
   Copyright (c) 2005-2014 Jason Bittel <jason.bittel@gmail.com>
-  Licensed under GPLv2. For further information, see COPYING file.
 
 */
 
@@ -18,6 +17,7 @@ char *get_value(char *name);
 void clear_values();
 void print_format_list();
 void print_format_values();
+void syslog_format_values();
 void free_format();
 
 #endif /* ! _HAVE_FORMAT_H */

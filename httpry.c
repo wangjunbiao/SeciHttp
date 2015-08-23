@@ -5,7 +5,6 @@
   ----------------------------------------------------
 
   Copyright (c) 2005-2014 Jason Bittel <jason.bittel@gmail.com>
-  Licensed under GPLv2. For further information, see COPYING file.
 
 */
 
@@ -63,6 +62,7 @@ static char *format_str = NULL;
 static char *methods_str = NULL;
 static char *use_dumpfile = NULL;
 static int rate_stats = 0;
+static int syslog_stats = 0;
 static int rate_interval = DEFAULT_RATE_INTERVAL;
 static int rate_threshold = DEFAULT_RATE_THRESHOLD;
 static int force_flush = 0;
@@ -189,8 +189,8 @@ void open_outfiles() {
 
                 PRINT("Writing output to file: %s", use_outfile);
 
-                printf("# %s version %s\n", PROG_NAME, PROG_VER);
-                print_format_list();
+                //printf("# %s version %s\n", PROG_NAME, PROG_VER);
+                //print_format_list();
         }
 
         /* Open pcap binary capture file if requested */
@@ -298,7 +298,7 @@ void parse_http_packet(u_char *args, const struct pcap_pkthdr *header, const u_c
         char *header_line, *req_value;
         char saddr[INET6_ADDRSTRLEN], daddr[INET6_ADDRSTRLEN];
         char sport[PORTSTRLEN], dport[PORTSTRLEN];
-        char ts[MAX_TIME_LEN], fmt[MAX_TIME_LEN];
+        char ts[MAX_TIME_LEN];
         int is_request = 0, is_response = 0;
         unsigned int eth_type = 0, offset;
 
@@ -400,15 +400,18 @@ void parse_http_packet(u_char *args, const struct pcap_pkthdr *header, const u_c
 
         /* Extract packet capture time */
         pkt_time = localtime((time_t *) &header->ts.tv_sec);
-        strftime(fmt, sizeof(fmt), "%Y-%m-%d %H:%M:%S.%%03u", pkt_time);
-        snprintf(ts, sizeof(ts), fmt, header->ts.tv_usec / 1000);
+        strftime(ts, MAX_TIME_LEN, "%Y-%m-%d %H:%M:%S", pkt_time);
         insert_value("timestamp", ts);
 
         if (rate_stats) {
                 update_host_stats(get_value("host"), header->ts.tv_sec);
                 clear_values();
         } else {
+            if (syslog_stats){
+                syslog_format_values();
+            }else{
                 print_format_values();
+            }
         }
 
         if (dumpfile)
@@ -630,9 +633,9 @@ void print_stats() {
 
 /* Display startup/informational banner */
 void display_banner() {
-        PRINT("%s version %s -- "
-              "HTTP logging and information retrieval tool", PROG_NAME, PROG_VER);
-        PRINT("Copyright (c) 2005-2014 Jason Bittel <jason.bittel@gmail.com>");
+        //PRINT("%s version %s -- "
+        //      "HTTP logging and information retrieval tool", PROG_NAME, PROG_VER);
+        //PRINT("Copyright (c) 2005-2014 Jason Bittel <jason.bittel@gmail.com>");
 
         return;
 }
@@ -662,10 +665,11 @@ void display_usage() {
                "   -s           run in HTTP requests per second mode\n"
                "   -t seconds   specify the display interval for rate statistics\n"
                "   -u user      set process owner\n"
+               "   -g           set syslog mode\n"
                "   expression   specify a bpf-style capture filter\n\n");
 
-        printf("Additional information can be found at:\n"
-               "   http://dumpsterventures.com/jason/httpry\n\n");
+        //printf("Additional information can be found at:\n"
+        //       "   http://dumpsterventures.com/jason/httpry\n\n");
 
         exit(EXIT_SUCCESS);
 }
@@ -680,7 +684,7 @@ int main(int argc, char **argv) {
         signal(SIGINT, &handle_signal);
 
         /* Process command line arguments */
-        while ((opt = getopt(argc, argv, "b:df:Fhpqi:l:m:n:o:P:r:st:u:S:")) != -1) {
+        while ((opt = getopt(argc, argv, "b:df:Fhpqi:l:m:n:o:P:r:st:u:S:g")) != -1) {
                 switch (opt) {
                         case 'b': use_dumpfile = optarg; break;
                         case 'd': daemon_mode = 1; use_syslog = 1; break;
@@ -700,6 +704,7 @@ int main(int argc, char **argv) {
                         case 't': rate_interval = atoi(optarg); break;
                         case 'u': new_user = optarg; break;
                         case 'S': eth_skip_bits = atoi(optarg); break;
+                        case 'g': syslog_stats = 1; break;
                         default: display_usage();
                 }
         }
