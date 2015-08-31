@@ -266,10 +266,8 @@ void syslog_format_values() {
                 memset(strtmp,0,sizeof(strtmp)/sizeof(char));
 
                 if (node->list != NULL){
-                    sprintf(strtmp,"%s",FIELD_DELIM);
+                    strcat(strmsg," ");
                 }
-                strcat(strmsg,strtmp);
-                memset(strtmp,0,sizeof(strtmp)/sizeof(char));
                 node = node->list;
         }
         //printf("\n");
