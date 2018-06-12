@@ -1,1 +1,16 @@
 doc/README
+httpry 是一个用 C 语言开发的用来显示和记录 HTTP 流量的工具。
+
+在secilog日志分析中由于客户需要审计流量中的http协议，于是就想到了用httpry这个项目来作为日志源，但是在做的过程中发现httpry只支持屏幕或者文件输出两种方式，不是很方便，于是想到了扩展httpry支持syslog协议。
+
+项目托管位置：https://github.com/zhulinu/secihttp
+
+增加了一个 -g参数。-g参数会把审计到的日志已linux syslog的方式，发送到local0上。
+
+在rsyslog.conf增加local0.*                                                @IP 
+
+这样配置好后。重启syslog服务
+
+启动进程： ./secihttp -g &
+
+审计到的http协议就会发送到syslog中。
